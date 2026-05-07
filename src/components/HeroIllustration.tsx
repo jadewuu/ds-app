@@ -40,6 +40,25 @@ interface Props {
   className?: string
 }
 
+const LABEL_MAP: Record<HeroType, string> = {
+  overview: "Overview",
+  colors: "Color Palette",
+  typography: "Typography",
+  button: "Button",
+  avatar: "Avatar",
+  badge: "Badge",
+  card: "Card",
+  tabs: "Tabs",
+  tooltip: "Tooltip",
+  skeleton: "Skeleton",
+  input: "Input",
+  select: "Select",
+  switch: "Switch",
+  slider: "Slider",
+  progress: "Progress",
+  chat: "AI Chat",
+}
+
 const ICON_MAP: Record<HeroType, React.ElementType> = {
   overview: Sparkles,
   colors: Palette,
@@ -61,10 +80,12 @@ const ICON_MAP: Record<HeroType, React.ElementType> = {
 
 export function HeroIllustration({ type, className }: Props) {
   const Icon = ICON_MAP[type]
+  const label = LABEL_MAP[type]
 
   return (
-    <div className={`flex h-28 items-center justify-center rounded-lg bg-primary/5 ${className ?? ""}`}>
-      <Icon className="h-10 w-10 text-primary/35" strokeWidth={1.5} />
+    <div className={`flex flex-col items-center justify-center gap-3 py-8 border-b border-border bg-muted/30 ${className ?? ""}`}>
+      <Icon className="h-12 w-12 text-primary/30" strokeWidth={1} />
+      <span className="text-[11px] font-semibold tracking-[0.05em] uppercase text-muted-foreground">{label}</span>
     </div>
   )
 }

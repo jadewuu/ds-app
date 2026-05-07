@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type FormEvent } from "react"
+import { useState, useEffect } from "react"
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +13,6 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -22,114 +21,63 @@ import {
   Sun,
   Moon,
   Menu,
-  Send,
-  Bot,
   User,
   Heart,
   Copy,
   Info,
   Search,
-  ChevronDown,
   Palette,
-  Monitor,
-  MousePointerClick,
   Sparkles,
   ExternalLink,
+  LayoutGrid,
+  Layers,
+  Blocks,
+  ArrowRight,
+  MousePointerClick,
+  BarChart3,
+  Pencil,
+  LayoutPanelTop,
+  TrendingUp,
+  Rss,
+  Tag,
+  CreditCard,
+  ToggleLeft,
+  Box,
+  SlidersHorizontal,
 } from "lucide-react"
 
-/* ─── SIDEBAR DATA (Arco Design structure) ─── */
+/* ─── SIDEBAR DATA ─── */
 
-interface NavGroup {
-  label: string
-  icon?: React.ElementType
-  defaultOpen?: boolean
-  children: (NavGroup | NavItem)[]
-}
-interface NavItem {
+interface SidebarItem {
   label: string
   href: string
+  icon: React.ElementType
 }
 
-function isGroup(e: NavGroup | NavItem): e is NavGroup {
-  return "children" in e
-}
-
-const sidebarGroups: NavGroup[] = [
-  {
-    label: "Getting Started",
-    defaultOpen: true,
-    children: [
-      { label: "Overview", href: "/overview" },
-    ],
-  },
-  {
-    label: "Design Tokens",
-    icon: Palette,
-    defaultOpen: true,
-    children: [
-      { label: "Colors", href: "/colors" },
-      { label: "Typography", href: "/typography" },
-    ],
-  },
-  {
-    label: "通用 General",
-    icon: Monitor,
-    defaultOpen: true,
-    children: [
-      { label: "Button 按钮", href: "/button" },
-    ],
-  },
-  {
-    label: "数据展示 Data Display",
-    icon: Monitor,
-    defaultOpen: false,
-    children: [
-      { label: "Avatar 头像", href: "/avatar" },
-      { label: "Badge 徽标", href: "/badge" },
-      { label: "Card 卡片", href: "/card" },
-      { label: "Tabs 标签页", href: "/tabs" },
-      { label: "Tooltip 文字提示", href: "/tooltip" },
-      { label: "Skeleton 骨架屏", href: "/skeleton" },
-    ],
-  },
-  {
-    label: "数据录入 Data Entry",
-    icon: MousePointerClick,
-    defaultOpen: false,
-    children: [
-      { label: "Input 输入框", href: "/input" },
-      { label: "Select 选择器", href: "/select" },
-      { label: "Switch 开关", href: "/switch" },
-      { label: "Slider 滑动输入条", href: "/slider" },
-    ],
-  },
-  {
-    label: "反馈 Feedback",
-    defaultOpen: false,
-    children: [
-      { label: "Progress 进度条", href: "/progress" },
-    ],
-  },
+const sidebarItems: SidebarItem[] = [
+  { label: "Overview", href: "/overview", icon: Info },
+  { label: "Foundations", href: "/colors", icon: Palette },
+  { label: "Layout", href: "/typography", icon: LayoutGrid },
+  { label: "Components", href: "/button", icon: Layers },
+  { label: "Patterns", href: "/chat", icon: Blocks },
 ]
 
 /* ─── DATA ─── */
 
 const colorTokens = [
-  { name: "Primary", variable: "--primary", light: "oklch(0 0 0)", dark: "oklch(0.9 0 0)", desc: "#000000 — primary action / emphasis" },
-  { name: "Background", variable: "--background", light: "oklch(1 0 0)", dark: "oklch(0.12 0 0)", desc: "Page background" },
-  { name: "Foreground", variable: "--foreground", light: "oklch(0.12 0 0)", dark: "oklch(0.95 0 0)", desc: "Primary text color" },
-  { name: "Card", variable: "--card", light: "oklch(1 0 0)", dark: "oklch(0.16 0 0)", desc: "Card / elevated surface" },
-  { name: "Secondary", variable: "--secondary", light: "oklch(0.96 0 0)", dark: "oklch(0.2 0 0)", desc: "Secondary surface" },
-  { name: "Muted", variable: "--muted", light: "oklch(0.97 0 0)", dark: "oklch(0.2 0 0)", desc: "Muted background" },
-  { name: "Border", variable: "--border", light: "oklch(0.88 0 0)", dark: "oklch(0.25 0 0)", desc: "Default border" },
-  { name: "Input", variable: "--input", light: "oklch(0.88 0 0)", dark: "oklch(0.25 0 0)", desc: "Input border" },
-  { name: "Destructive", variable: "--destructive", light: "oklch(0.58 0.24 27)", dark: "oklch(0.7 0.19 27)", desc: "Error / destructive" },
-  { name: "Ring", variable: "--ring", light: "oklch(0 0 0)", dark: "oklch(0.9 0 0)", desc: "Focus ring" },
-  { name: "Accent", variable: "--accent", light: "oklch(0.97 0 0)", dark: "oklch(0.2 0 0)", desc: "Accent surface" },
-  { name: "Popover", variable: "--popover", light: "oklch(1 0 0)", dark: "oklch(0.16 0 0)", desc: "Popover / dropdown bg" },
+  { name: "Primary", variable: "--primary", light: "#000000", dark: "#ccff00", desc: "Ink black — primary action color" },
+  { name: "Primary Container", variable: "--primary-container", light: "#ccff00", dark: "#1a1a1a", desc: "Neon green — accent container" },
+  { name: "Secondary", variable: "--secondary", light: "#000000", dark: "#ffffff", desc: "Black — secondary actions" },
+  { name: "Background", variable: "--background", light: "#ffffff", dark: "#000000", desc: "Pure white page background" },
+  { name: "Foreground", variable: "--foreground", light: "#000000", dark: "#ffffff", desc: "Absolute black text" },
+  { name: "Card", variable: "--card", light: "#ffffff", dark: "#0d0d0d", desc: "Card / elevated surface" },
+  { name: "Muted", variable: "--muted", light: "#f3f3f3", dark: "#1a1a1a", desc: "Light gray muted surface" },
+  { name: "Muted Foreground", variable: "--muted-foreground", light: "#444933", dark: "#949a80", desc: "Subtle olive-gray label text" },
+  { name: "Border", variable: "--border", light: "#e2e2e2", dark: "#333333", desc: "1px hairline structural borders" },
+  { name: "Ring", variable: "--ring", light: "#000000", dark: "#ccff00", desc: "Black focus ring" },
+  { name: "Destructive", variable: "--destructive", light: "#ba1a1a", dark: "#ffb4ab", desc: "Error / destructive state" },
+  { name: "Outline Variant", variable: "--border", light: "#e2e2e2", dark: "#333333", desc: "Input borders & dividers" },
 ]
-
-interface ChatMessage { id: string; role: "user" | "assistant"; content: string }
 
 /* ═══════════════════════════════════════
    SIDEBAR
@@ -141,64 +89,26 @@ function SidebarNav() {
   const path = location.pathname
 
   return (
-    <ScrollArea className="flex-1">
-      <nav className="flex flex-col gap-0 p-2">
-        {sidebarGroups.map((group) => (
-          <SidebarGroup key={group.label} group={group} level={0} active={path} navigate={navigate} />
-        ))}
-      </nav>
-    </ScrollArea>
-  )
-}
-
-function SidebarGroup({
-  group,
-  level,
-  active,
-  navigate,
-}: {
-  group: NavGroup
-  level: number
-  active: string
-  navigate: ReturnType<typeof useNavigate>
-}) {
-  const [open, setOpen] = useState(group.defaultOpen ?? false)
-  const Icon = group.icon
-
-  return (
-    <div>
-      <button
-        onClick={() => setOpen(!open)}
-        className={`flex w-full items-center gap-1.5 rounded px-2 py-1 text-sm transition-colors ${
-          level === 0 ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"
-        }`}
-      >
-        {Icon && level === 0 && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
-        <span className="flex-1 truncate text-left">{group.label}</span>
-        <ChevronDown className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${open ? "" : "-rotate-90"}`} />
-      </button>
-      {open && (
-        <div className={level === 0 ? "ml-3.5 border-l pl-2" : "ml-3"}>
-          {group.children.map((child) =>
-            isGroup(child) ? (
-              <SidebarGroup key={child.label} group={child} level={level + 1} active={active} navigate={navigate} />
-            ) : (
-              <button
-                key={child.label}
-                onClick={() => navigate(child.href)}
-                className={`block w-full truncate rounded px-2 py-1 text-left text-sm transition-colors ${
-                  active === child.href
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                {child.label}
-              </button>
-            )
-          )}
-        </div>
-      )}
-    </div>
+    <nav className="space-y-1 px-3 py-2">
+      {sidebarItems.map((item) => {
+        const isActive = path === item.href
+        const Icon = item.icon
+        return (
+          <button
+            key={item.href}
+            onClick={() => navigate(item.href)}
+            className={`flex w-full items-center gap-3 px-3 py-2.5 text-sm transition-all ${
+              isActive
+                ? "bg-primary-container text-foreground font-bold"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <Icon className={`h-4 w-4 ${isActive ? "" : ""}`} />
+            <span>{item.label}</span>
+          </button>
+        )
+      })}
+    </nav>
   )
 }
 
@@ -246,66 +156,636 @@ function DemoBox({ title, desc, children }: { title?: string; desc?: string; chi
    ═══════════════════════════════════════ */
 
 function OverviewPage() {
-  return (
-    <div className="space-y-8">
-      <PageTitle title="Overview" desc="A minimal, high-contrast design system for AI chat interfaces — black primary, clean typography, shadcn/ui components." />
-      <HeroIllustration type="overview" className="mt-4" />
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          ["12 Color Tokens", "OKLCH palette, light & dark variants"],
-          ["20+ Components", "Base UI primitives, fully accessible"],
-          ["AI Chat Ready", "Bubbles, avatars, streaming indicators"],
-        ].map(([t, d]) => (
-          <Card key={t}><CardHeader className="pb-2"><CardTitle className="text-base font-medium">{t}</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">{d}</p></CardContent></Card>
-        ))}
-      </div>
-      <div className="rounded-md border bg-muted/20 p-4">
-        <p className="text-sm text-muted-foreground"><span className="font-medium text-foreground">Stack:</span> Tailwind CSS v4 &middot; shadcn/ui &middot; Lucide React &middot; Base UI &middot; OKLCH</p>
-      </div>
-    </div>
-  )
-}
+  const navigate = useNavigate()
 
-function ColorsPage() {
   return (
-    <div className="space-y-6">
-      <PageTitle title="Colors" desc="Semantic tokens. Primary: #000000. All values in OKLCH." />
-      <HeroIllustration type="colors" className="mt-4" />
-      <div className="space-y-1">
-        {colorTokens.map((t) => (
-          <div key={t.name} className="flex items-center gap-3 rounded-md border p-2.5">
-            <div className="h-10 w-10 shrink-0 rounded border" style={{ background: `var(${t.variable})` }} />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline gap-2">
-                <span className="text-sm font-medium">{t.name}</span>
-                <code className="text-xs text-muted-foreground">{t.variable}</code>
-              </div>
-              <p className="text-xs text-muted-foreground">{t.desc}</p>
-            </div>
-            <code className="hidden shrink-0 text-right text-xs text-muted-foreground leading-relaxed sm:block">{t.light}<br />{t.dark}</code>
+    <div className="space-y-0">
+      {/* ── Hero Section ── */}
+      <section className="relative px-6 pt-24 pb-20 lg:px-16 lg:pt-32 lg:pb-24 border-b border-border overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.05] pointer-events-none hairline-grid" />
+        <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-primary-container/10 blur-[160px] rounded-full" />
+        <div className="relative z-10 max-w-6xl">
+          <span className="text-[12px] font-bold tracking-[0.3em] uppercase text-muted-foreground mb-8 block">The New Standard</span>
+          <h1 className="text-[72px] sm:text-[96px] lg:text-[120px] font-extrabold leading-[0.95] tracking-[-0.05em] mb-12">
+            DesignCore Systems
+          </h1>
+          <p className="text-[18px] lg:text-[20px] text-muted-foreground max-w-3xl border-l-[8px] border-primary-container pl-12 py-4 italic leading-[1.6]">
+            A comprehensive editorial design system built for high-performance product teams.
+            Merging Swiss precision with digital vibrancy to create expansive, accessible, and futuristic user experiences.
+          </p>
+          <div className="mt-16 flex flex-wrap gap-6">
+            <Button
+              onClick={() => navigate("/button")}
+              className="bg-foreground text-background hover:bg-primary-container hover:text-foreground rounded-none px-10 py-5 text-sm font-bold gap-3"
+            >
+              Explore Components <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => navigate("/colors")}
+              variant="outline"
+              className="border-2 border-foreground text-foreground rounded-none px-10 py-5 text-sm font-bold hover:bg-muted"
+            >
+              View Foundations
+            </Button>
           </div>
-        ))}
-      </div>
+        </div>
+      </section>
+
+      {/* ── Image Banner ── */}
+      <section className="w-full border-b border-border bg-foreground">
+        <div className="h-[400px] lg:h-[500px] w-full relative flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 hairline-grid opacity-[0.06]" />
+          <div className="absolute -bottom-1/4 -left-1/4 w-[800px] h-[800px] bg-primary-container/15 blur-[160px] rounded-full" />
+          <div className="relative z-10 text-center">
+            <Sparkles className="h-16 w-16 text-primary-container mx-auto mb-6 opacity-50" strokeWidth={1} />
+            <p className="text-[12px] font-bold tracking-[0.3em] uppercase text-primary-container/50">DesignCore Ecosystem</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Core Foundations Bento Grid ── */}
+      <section className="px-6 py-28 lg:px-16 lg:py-40">
+        <div className="flex flex-col md:flex-row justify-between items-baseline mb-16 gap-4">
+          <h2 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em]">Core Foundations</h2>
+          <span className="text-[14px] font-semibold tracking-widest uppercase text-muted-foreground">01 / Foundations</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px border border-border bg-border">
+          {/* Color */}
+          <div className="bg-card p-12 flex flex-col justify-between aspect-square">
+            <div>
+              <Palette className="h-10 w-10 text-foreground mb-6" />
+              <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">Color</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Our signature neon green <span className="bg-primary-container px-1 font-bold text-foreground">#CCFF00</span> anchors a high-contrast palette designed for accessibility and impact.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <div className="w-10 h-10 bg-primary-container border border-border" />
+              <div className="w-10 h-10 bg-foreground border border-border" />
+              <div className="w-10 h-10 bg-muted border border-border" />
+              <div className="w-10 h-10 bg-white border border-border" />
+            </div>
+          </div>
+          {/* Typography */}
+          <div className="bg-card p-12 flex flex-col justify-between aspect-square">
+            <div>
+              <span className="text-[40px] leading-none mb-6 block select-none font-extrabold tracking-[-0.04em]">Aa</span>
+              <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">Type</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Inter is our workhorse. Utilizing variable weights to define a clear, authoritative typographic hierarchy.
+              </p>
+            </div>
+            <div className="text-[100px] lg:text-[140px] font-extrabold leading-none select-none tracking-[-0.05em] opacity-[0.03]">Aa</div>
+          </div>
+          {/* Grid */}
+          <div className="bg-card p-12 flex flex-col justify-between aspect-square">
+            <div>
+              <LayoutGrid className="h-10 w-10 text-foreground mb-6" />
+              <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">Grid</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                A strict 12-column hairline system ensures geometric precision across all viewports and devices.
+              </p>
+            </div>
+            <div className="w-full h-24 hairline-grid opacity-20 border border-border" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Component Ecosystem ── */}
+      <section className="px-6 py-28 lg:px-16 lg:py-40 bg-foreground text-background overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-full h-full pointer-events-none overflow-hidden">
+          <div className="absolute -bottom-1/4 -left-1/4 w-[800px] h-[800px] bg-primary-container/10 blur-[160px] rounded-full" />
+        </div>
+        <div className="relative z-10 flex flex-col lg:flex-row gap-24">
+          <div className="lg:w-1/3">
+            <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary-container mb-6 block">Modular Architecture</span>
+            <h2 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em] mb-10">Component Ecosystem</h2>
+            <p className="text-[18px] lg:text-[20px] text-white/50 mb-16 max-w-md leading-[1.6]">
+              Atomic design principles scaled for the enterprise. From primitive buttons to complex data visualizations.
+            </p>
+            <ul className="space-y-0">
+              {[
+                ["01", "Atoms"],
+                ["02", "Molecules"],
+                ["03", "Organisms"],
+              ].map(([num, label]) => (
+                <li
+                  key={num}
+                  className="flex items-center gap-6 py-6 border-b border-white/10 group cursor-pointer hover:bg-white/5 px-4 -mx-4 transition-all"
+                >
+                  <span className="text-[14px] font-semibold tabular-nums text-primary-container">{num}</span>
+                  <span className="text-[28px] font-bold">{label}</span>
+                  <ArrowRight className="h-5 w-5 ml-auto opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0" />
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-10">
+            {[
+              { icon: MousePointerClick, title: "Interactive", desc: "Unified hover, active, and focus states across all interactive surfaces for predictable UX.", version: "v2.1", filled: true },
+              { icon: BarChart3, title: "Data Viz", desc: "Chart primitives and complex dashboards built with high-density editorial layouts.", version: "v1.8", filled: false },
+              { icon: Pencil, title: "Forms", desc: "Clean, minimalist input structures with robust validation states and clear hierarchy.", version: "v3.0", filled: false },
+              { icon: LayoutPanelTop, title: "Layouts", desc: "Bento grids, editorial spreads, and task-focused shells for diverse application needs.", version: "v1.2", filled: false },
+            ].map((item) => (
+              <div key={item.title} className="border border-white/10 p-10 flex flex-col gap-8 hover:border-primary-container transition-all cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div className={`w-16 h-16 flex items-center justify-center ${item.filled ? "bg-primary-container text-foreground" : "bg-white/10 text-white"}`}>
+                    <item.icon className="h-7 w-7" />
+                  </div>
+                  <span className="text-[14px] font-semibold tabular-nums text-white/30">{item.version}</span>
+                </div>
+                <div>
+                  <h4 className="text-[28px] font-bold mb-3">{item.title}</h4>
+                  <p className="text-base text-white/50 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Getting Started ── */}
+      <section className="px-6 py-28 lg:px-16 lg:py-40 bg-background">
+        <div className="max-w-5xl">
+          <h2 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em] mb-20">Getting Started</h2>
+          <div className="space-y-24">
+            {/* For Designers */}
+            <div className="flex flex-col md:flex-row gap-12 md:gap-32 border-t-2 border-foreground pt-16">
+              <div className="md:w-1/3">
+                <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">For Designers</h3>
+                <p className="text-base text-muted-foreground leading-relaxed">Access the Figma library, visual tokens, and editorial style guides.</p>
+              </div>
+              <div className="md:w-2/3 flex flex-col gap-6">
+                <div className="p-8 bg-muted border-l-[8px] border-primary-container flex justify-between items-center group cursor-pointer hover:bg-foreground hover:text-background transition-all">
+                  <div>
+                    <p className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">Figma Community</p>
+                    <p className="text-[20px] font-bold">DesignCore Library v2.0</p>
+                  </div>
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-3 transition-transform" />
+                </div>
+                <div className="p-8 bg-muted border-l-[8px] border-foreground flex justify-between items-center group cursor-pointer hover:bg-foreground hover:text-background transition-all">
+                  <div>
+                    <p className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">Token Specifications</p>
+                    <p className="text-[20px] font-bold">Typography & Color Specs</p>
+                  </div>
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-3 transition-transform" />
+                </div>
+              </div>
+            </div>
+            {/* For Developers */}
+            <div className="flex flex-col md:flex-row gap-12 md:gap-32 border-t-2 border-foreground pt-16">
+              <div className="md:w-1/3">
+                <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">For Developers</h3>
+                <p className="text-base text-muted-foreground leading-relaxed">NPM packages, API references, and implementation guides.</p>
+              </div>
+              <div className="md:w-2/3 flex flex-col gap-6">
+                <div className="p-8 bg-foreground text-background flex justify-between items-center group cursor-pointer hover:bg-primary-container hover:text-foreground transition-all">
+                  <code className="text-[16px] font-bold font-mono">npm install @designcore/systems</code>
+                  <Copy className="h-5 w-5" />
+                </div>
+                <div className="p-8 bg-muted border-l-[8px] border-foreground flex justify-between items-center group cursor-pointer hover:bg-foreground hover:text-background transition-all">
+                  <div>
+                    <p className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">React SDK</p>
+                    <p className="text-[20px] font-bold">Component API Documentation</p>
+                  </div>
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-3 transition-transform" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="w-full py-20 px-6 lg:px-16 mt-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-foreground text-background border-t border-white/10">
+        <div className="flex flex-col items-center md:items-start gap-6">
+          <span className="text-[24px] font-black text-primary-container">DesignCore</span>
+          <p className="text-base text-white/40 text-center md:text-left">
+            © 2024 DesignCore Systems. All rights reserved. Built for the future of editorial products.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-10">
+          {["Privacy Policy", "Terms of Service", "GitHub", "Support"].map((link) => (
+            <a key={link} href="#" className="text-[12px] font-bold tracking-[0.15em] uppercase hover:text-primary-container transition-colors">{link}</a>
+          ))}
+        </div>
+      </footer>
     </div>
   )
 }
 
-function TypographyPage() {
-  const samples = [
-    { label: "text-xl / font-semibold", cls: "text-xl font-semibold tracking-tight", text: "Heading 1 — The quick brown fox" },
-    { label: "text-lg / font-medium", cls: "text-lg font-medium", text: "Heading 2 — The quick brown fox" },
-    { label: "text-base / font-medium", cls: "text-base font-medium", text: "Heading 3 — The quick brown fox" },
-    { label: "text-base (body)", cls: "text-base", text: "Body — The quick brown fox jumps over the lazy dog." },
-    { label: "text-sm / muted", cls: "text-sm text-muted-foreground", text: "Caption — Secondary labels and metadata." },
-    { label: "text-xs", cls: "text-xs text-muted-foreground", text: "Extra small — Auxiliary text and footnotes." },
-  ]
+function FoundationsPage() {
   return (
-    <div className="space-y-6">
-      <PageTitle title="Typography" desc="Geist Variable + system font stack. Weight and size only." />
-      <HeroIllustration type="typography" className="mt-4" />
-      {samples.map((s) => (
-        <div key={s.label}><p className="mb-1 text-xs text-muted-foreground">{s.label}</p><p className={s.cls}>{s.text}</p></div>
+    <div className="space-y-0">
+      {/* ── Hero ── */}
+      <section className="mb-28 lg:mb-40 border-b border-foreground pb-16">
+        <div className="max-w-4xl">
+          <span className="text-[12px] font-bold tracking-[0.3em] uppercase text-muted-foreground mb-4 block">System Core</span>
+          <h1 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em] mb-8">Foundations</h1>
+          <p className="text-[18px] lg:text-[20px] text-muted-foreground max-w-2xl leading-[1.6]">
+            The bedrock of the DesignCore visual language. These core principles—Color, Type, Spacing, and Grid—ensure every interface we build is consistent, accessible, and high-performance.
+          </p>
+        </div>
+      </section>
+
+      {/* ── 01 Grid & Spacing ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="flex flex-col md:flex-row gap-12 border-b border-border pb-20">
+          <div className="md:w-1/3">
+            <span className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-2 block">01</span>
+            <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-6">Grid & Spacing</h2>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">
+              Our layout philosophy relies on a strict 12-column hairline grid. Spacing is handled through a set of numeric tokens that create rhythm and airy editorial breathing room.
+            </p>
+          </div>
+          <div className="md:w-2/3">
+            <div className="relative h-80 w-full border border-border hairline-grid flex items-center justify-center bg-background">
+              <div className="absolute inset-0 grid grid-cols-12 gap-0 opacity-10">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="border-r border-foreground h-full" />
+                ))}
+              </div>
+              <div className="z-10 bg-primary-container p-12 border border-foreground">
+                <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-foreground">Spacing Token: Stack-Section</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 02 Color Palette ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="flex flex-col md:flex-row gap-12 border-b border-border pb-20">
+          <div className="md:w-1/3">
+            <span className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-2 block">02</span>
+            <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-6">Color Palette</h2>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">
+              High contrast vibrancy. We leverage a deep charcoal foundation paired with a high-energy neon green accent to create immediate hierarchy and visual focus.
+            </p>
+          </div>
+          <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-primary-container p-12 border border-foreground h-48 flex flex-col justify-end">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-foreground mb-1">Primary Accent</span>
+              <span className="text-[32px] lg:text-[36px] font-bold">#CCFF00</span>
+            </div>
+            <div className="bg-foreground p-12 border border-foreground h-48 flex flex-col justify-end text-background">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-white/60 mb-1">Deep Charcoal</span>
+              <span className="text-[32px] lg:text-[36px] font-bold">#1B1B1B</span>
+            </div>
+            <div className="bg-muted p-12 border border-foreground h-48 flex flex-col justify-end">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">Surface Neutral</span>
+              <span className="text-[32px] lg:text-[36px] font-bold">#E8E8E8</span>
+            </div>
+            <div className="bg-white p-12 border border-foreground h-48 flex flex-col justify-end">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-1">Canvas White</span>
+              <span className="text-[32px] lg:text-[36px] font-bold">#FFFFFF</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 03 Typography ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="flex flex-col md:flex-row gap-12 border-b border-border pb-20">
+          <div className="md:w-1/3">
+            <span className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-2 block">03</span>
+            <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-6">Typography</h2>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">
+              Inter is our universal typeface. We utilize a bold, editorial scale that prioritizes clarity and a structured information hierarchy.
+            </p>
+          </div>
+          <div className="md:w-2/3 space-y-12">
+            <div className="border-b border-border pb-4">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 block mb-2">Headline XL (72px)</span>
+              <p className="text-[56px] lg:text-[72px] font-extrabold leading-[1.1] tracking-tight">Precision at Scale.</p>
+            </div>
+            <div className="border-b border-border pb-4">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 block mb-2">Headline LG (48px)</span>
+              <p className="text-[36px] lg:text-[48px] font-bold leading-[1.15]">Structured Hierarchy.</p>
+            </div>
+            <div className="border-b border-border pb-4">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 block mb-2">Body LG (18px)</span>
+              <p className="text-[16px] lg:text-[18px] leading-[1.6]">The quick brown fox jumps over the lazy dog. Editorial reading experience designed for legibility and digital surfaces.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 block mb-2">Label Numeric</span>
+                <p className="text-[14px] font-semibold leading-none tabular-nums">0123456789</p>
+              </div>
+              <div>
+                <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 block mb-2">Label Caps</span>
+                <p className="text-[12px] font-bold tracking-[0.15em] uppercase">Navigation Element</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 04 Iconography ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="flex flex-col md:flex-row gap-12 pb-20">
+          <div className="md:w-1/3">
+            <span className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-2 block">04</span>
+            <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-6">Iconography</h2>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">
+              Our iconography system is built on a 24px grid with 1.5px strokes. Minimalist, geometric, and designed to disappear into the interface until needed.
+            </p>
+          </div>
+          <div className="md:w-2/3">
+            <div className="grid grid-cols-4 md:grid-cols-6 gap-px border border-border bg-border">
+              {[Palette, LayoutGrid, Layers, Blocks, Sparkles, MousePointerClick, Info, Search, ExternalLink, Copy, Heart, Pencil].map((Icon, i) => (
+                <div key={i} className="bg-card p-8 flex items-center justify-center aspect-square">
+                  <Icon className="h-9 w-9 text-foreground" strokeWidth={1.5} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Visual Asset ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="relative overflow-hidden border border-foreground">
+          <div className="h-[400px] lg:h-[600px] w-full relative flex items-end bg-foreground">
+            <div className="absolute inset-0 hairline-grid opacity-[0.05]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground to-transparent opacity-40" />
+            <div className="absolute bottom-12 left-12 z-10">
+              <span className="text-[48px] lg:text-[64px] font-extrabold text-white leading-[1.05] tracking-[-0.04em]">Visual Cohesion.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="w-full py-20 px-6 lg:px-16 mt-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-foreground text-background border-t border-white/10">
+        <div className="flex flex-col items-center md:items-start gap-6">
+          <span className="text-[24px] font-black text-primary-container">DesignCore</span>
+          <p className="text-base text-white/40 text-center md:text-left">
+            © 2024 DesignCore Systems. All rights reserved. Built for the future of editorial products.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-10">
+          {["Privacy Policy", "Terms of Service", "GitHub", "Support"].map((link) => (
+            <a key={link} href="#" className="text-[12px] font-bold tracking-[0.15em] uppercase hover:text-primary-container transition-colors">{link}</a>
+          ))}
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+function LayoutPage() {
+  return (
+    <div className="space-y-0">
+      {/* ── Hero ── */}
+      <section className="mb-28 lg:mb-40 border-b border-border pb-12">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+          <div className="max-w-2xl">
+            <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary mb-4 block">03 / Foundations</span>
+            <h1 className="text-[56px] lg:text-[72px] font-semibold leading-[1.1] tracking-[-0.04em] mb-6">Layout & Spatial Systems</h1>
+            <p className="text-[16px] lg:text-[18px] text-muted-foreground leading-[1.6]">DesignCore utilizes a rigid editorial grid to ensure precision and clarity across all digital touchpoints. Our 12-column system is the heartbeat of our visual language.</p>
+          </div>
+          <div className="w-full md:w-1/3 border border-border p-8 lg:p-12 bg-card">
+            <div className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-2">Last Updated</div>
+            <div className="text-[32px] lg:text-[36px] font-bold leading-none">Oct 2024</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 12-Column Grid ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="flex items-baseline justify-between mb-8 border-b border-border pb-4">
+          <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em]">12-Column Grid</h2>
+          <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground">View Specifications →</span>
+        </div>
+        <div className="grid grid-cols-4 md:grid-cols-12 gap-px h-64 border border-border bg-border">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className={`bg-card flex items-end p-4 ${i >= 4 ? "hidden md:flex" : ""}`}>
+              <span className="text-[14px] font-semibold tabular-nums">{(i + 1).toString().padStart(2, "0")}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div>
+            <h4 className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary mb-2">Column Width</h4>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">Fluid columns that adapt to viewport width, maintaining a consistent gutter ratio.</p>
+          </div>
+          <div>
+            <h4 className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary mb-2">Gutter</h4>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">A fixed 1px hairline divider replaces traditional whitespace gutters for a tighter, editorial feel.</p>
+          </div>
+          <div>
+            <h4 className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary mb-2">Margins</h4>
+            <p className="text-[16px] text-muted-foreground leading-[1.6]">Global margins of 4rem (desktop) ensure content never touches the browser edges.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Bento Layout Patterns ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="flex items-baseline justify-between mb-8 border-b border-border pb-4">
+          <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em]">Bento Layout Patterns</h2>
+          <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground">Structural Anchors</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-auto md:h-[600px]">
+          {/* Large Feature — The Content Anchor */}
+          <div className="md:col-span-2 md:row-span-2 border border-border p-8 lg:p-12 flex flex-col justify-between bg-primary-container relative overflow-hidden">
+            <div className="z-10">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-foreground">Pattern 01</span>
+              <h3 className="text-[40px] lg:text-[48px] font-semibold leading-[1.15] tracking-[-0.03em] mt-4">The Content Anchor</h3>
+            </div>
+            <div className="z-10 mt-8">
+              <p className="text-[16px] text-foreground/70 max-w-xs mb-6 leading-[1.5]">A dominant container used for high-impact hero images or primary navigation clusters.</p>
+              <button className="flex items-center gap-2 font-bold text-foreground text-sm">Explore →</button>
+            </div>
+            <div className="absolute right-0 bottom-0 opacity-10 w-1/2 h-full hairline-grid" />
+          </div>
+          {/* Information Dense */}
+          <div className="md:col-span-2 border border-border p-8 lg:p-12 bg-card flex flex-col justify-center">
+            <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary">Pattern 02</span>
+            <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mt-2">Information Dense</h3>
+            <p className="text-[16px] text-muted-foreground mt-4 leading-[1.6]">Multi-layered data visualization or nested component lists.</p>
+          </div>
+          {/* Small Stat 1 */}
+          <div className="border border-border p-8 lg:p-12 bg-muted flex flex-col justify-end">
+            <div className="text-[14px] font-semibold tabular-nums text-primary mb-4">03.1</div>
+            <div className="text-[32px] lg:text-[36px] font-bold">1px</div>
+            <div className="text-[12px] font-bold tracking-[0.15em] uppercase mt-2 text-muted-foreground">Hairline Weight</div>
+          </div>
+          {/* Small Stat 2 */}
+          <div className="border border-border p-8 lg:p-12 bg-secondary text-secondary-foreground flex flex-col justify-end">
+            <div className="text-[14px] font-semibold tabular-nums opacity-60 mb-4">03.2</div>
+            <div className="text-[32px] lg:text-[36px] font-bold">100%</div>
+            <div className="text-[12px] font-bold tracking-[0.15em] uppercase mt-2 opacity-80">Fluid Width</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Responsive Breakpoints ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="mb-8">
+          <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] border-b border-border pb-4 mb-4">Responsive Breakpoints</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="text-left border-b border-border">
+                <th className="py-4 text-[12px] font-bold tracking-[0.15em] uppercase">Token</th>
+                <th className="py-4 text-[12px] font-bold tracking-[0.15em] uppercase">Viewport</th>
+                <th className="py-4 text-[12px] font-bold tracking-[0.15em] uppercase">Columns</th>
+                <th className="py-4 text-[12px] font-bold tracking-[0.15em] uppercase">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {[
+                { token: "SM", viewport: "640px", cols: "4 Columns", desc: "Standard mobile portrait orientation." },
+                { token: "MD", viewport: "768px", cols: "8 Columns", desc: "Tablets and large-format mobile devices." },
+                { token: "LG", viewport: "1024px", cols: "12 Columns", desc: "Standard desktop and laptop viewports." },
+                { token: "XL", viewport: "1280px", cols: "12 Columns", desc: "Enhanced spacing for widescreen monitors." },
+              ].map((row) => (
+                <tr key={row.token}>
+                  <td className="py-6 text-[14px] font-semibold tabular-nums">{row.token}</td>
+                  <td className="py-6 text-[16px]">{row.viewport}</td>
+                  <td className="py-6 text-[16px]">{row.cols}</td>
+                  <td className="py-6 text-[16px] text-muted-foreground">{row.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ── Image Callout ── */}
+      <section className="mb-28 lg:mb-40">
+        <div className="relative w-full aspect-[21/9] overflow-hidden">
+          <div className="absolute inset-0 bg-foreground flex items-center justify-center">
+            <div className="absolute inset-0 hairline-grid opacity-[0.04]" />
+          </div>
+          <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-12 bg-foreground/40">
+            <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary-container mb-4">Visual Guidance</span>
+            <h2 className="text-[56px] lg:text-[72px] font-semibold leading-[1.1] tracking-[-0.04em] text-white mb-6">Asymmetric Balance</h2>
+            <p className="text-[16px] lg:text-[18px] text-white/70 max-w-xl leading-[1.6]">Leveraging empty grid space is as important as filling it. Use whitespace to guide the user's eye through the editorial narrative.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="w-full py-20 px-6 lg:px-16 mt-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-foreground text-background border-t border-white/10">
+        <div className="flex flex-col items-center md:items-start gap-6">
+          <span className="text-[24px] font-black text-primary-container">DesignCore</span>
+          <p className="text-base text-white/40 text-center md:text-left">
+            © 2024 DesignCore Systems. All rights reserved. Built for the future of editorial products.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-10">
+          {["Privacy Policy", "Terms of Service", "GitHub", "Support"].map((link) => (
+            <a key={link} href="#" className="text-[12px] font-bold tracking-[0.15em] uppercase hover:text-primary-container transition-colors">{link}</a>
+          ))}
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+function ComponentsPage() {
+  const navigate = useNavigate()
+
+  const componentGroups = [
+    {
+      category: "Atoms",
+      items: [
+        { name: "Button", desc: "6 variants · 3 sizes · icon support", icon: MousePointerClick, route: "/button-demo" },
+        { name: "Input", desc: "Text field · label · placeholder · disabled", icon: Pencil, route: "/input" },
+        { name: "Badge", desc: "Status indicators · 4 variants", icon: Tag, route: "/badge" },
+        { name: "Avatar", desc: "User representation · image · fallback", icon: User, route: "/avatar" },
+      ],
+    },
+    {
+      category: "Molecules",
+      items: [
+        { name: "Select", desc: "Dropdown choice from a list", icon: Layers, route: "/select" },
+        { name: "Switch", desc: "Toggle between two states", icon: ToggleLeft, route: "/switch" },
+        { name: "Slider", desc: "Numeric value from a range", icon: SlidersHorizontal, route: "/slider" },
+        { name: "Progress", desc: "Completion status indicator", icon: BarChart3, route: "/progress" },
+      ],
+    },
+    {
+      category: "Organisms",
+      items: [
+        { name: "Card", desc: "Container · header · content · footer", icon: CreditCard, route: "/card" },
+        { name: "Tabs", desc: "Switch between views in same context", icon: LayoutPanelTop, route: "/tabs" },
+        { name: "Tooltip", desc: "Extra info on hover or focus", icon: Info, route: "/tooltip" },
+        { name: "Skeleton", desc: "Loading placeholder for content areas", icon: Box, route: "/skeleton" },
+      ],
+    },
+  ]
+
+  return (
+    <div className="space-y-0">
+      {/* ── Hero ── */}
+      <section className="mb-28 lg:mb-40 border-b border-border pb-16">
+        <div className="max-w-4xl">
+          <span className="text-[12px] font-bold tracking-[0.3em] uppercase text-muted-foreground mb-4 block">
+            Building Blocks
+          </span>
+          <h1 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em] mb-8">
+            Components
+          </h1>
+          <p className="text-[18px] lg:text-[20px] text-muted-foreground max-w-2xl leading-[1.6]">
+            A complete library of interface primitives. Atomic design principles scaled for
+            the enterprise — from simple buttons to complex data visualizations. Every
+            component is built on Base UI primitives with full keyboard navigation and
+            screen reader support.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Component Categories ── */}
+      {componentGroups.map((group) => (
+        <section key={group.category} className="mb-28 lg:mb-40">
+          <div className="flex items-baseline justify-between mb-8 border-b border-border pb-4">
+            <h2 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em]">
+              {group.category}
+            </h2>
+            <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+              {group.items.length} components
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px border border-border bg-border">
+            {group.items.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => navigate(item.route)}
+                className="bg-card p-8 lg:p-10 flex flex-col gap-4 text-left hover:bg-muted transition-colors group cursor-pointer"
+              >
+                <div className="flex items-start justify-between">
+                  <item.icon className="h-8 w-8 text-foreground" strokeWidth={1.5} />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0" />
+                </div>
+                <div>
+                  <h3 className="text-[24px] font-bold mb-2">{item.name}</h3>
+                  <p className="text-[16px] text-muted-foreground leading-[1.6]">{item.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
       ))}
+
+      {/* ── Footer ── */}
+      <footer className="w-full py-20 px-6 lg:px-16 mt-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-foreground text-background border-t border-white/10">
+        <div className="flex flex-col items-center md:items-start gap-6">
+          <span className="text-[24px] font-black text-primary-container">DesignCore</span>
+          <p className="text-base text-white/40 text-center md:text-left">
+            © 2024 DesignCore Systems. All rights reserved. Built for the future of editorial products.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-10">
+          {["Privacy Policy", "Terms of Service", "GitHub", "Support"].map((link) => (
+            <a key={link} href="#" className="text-[12px] font-bold tracking-[0.15em] uppercase hover:text-primary-container transition-colors">{link}</a>
+          ))}
+        </div>
+      </footer>
     </div>
   )
 }
@@ -532,85 +1012,305 @@ function ProgressPage() {
   )
 }
 
-function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: "1", role: "assistant", content: "Hi! I'm your AI assistant. How can I help you today?" },
-    { id: "2", role: "user", content: "Show me the design system color tokens." },
-    { id: "3", role: "assistant", content: "Primary is #000000. 12 semantic tokens — all in OKLCH. Light & dark mode supported." },
-  ])
-  const [input, setInput] = useState("")
-  const [typing, setTyping] = useState(false)
-  const listRef = useRef<HTMLDivElement>(null)
-  useEffect(() => { listRef.current?.scrollTo(0, listRef.current.scrollHeight) }, [messages, typing])
-
-  function send(e: FormEvent) {
-    e.preventDefault()
-    if (!input.trim() || typing) return
-    setMessages((p) => [...p, { id: crypto.randomUUID(), role: "user", content: input.trim() }])
-    setInput("")
-    setTyping(true)
-    setTimeout(() => {
-      const replies = ["The design system uses 12 semantic color tokens.", "All components are Base UI primitives.", "Black primary = max contrast in both modes.", "Customize via CSS variables — no config files."]
-      setMessages((p) => [...p, { id: crypto.randomUUID(), role: "assistant", content: replies[Math.floor(Math.random() * replies.length)] }])
-      setTyping(false)
-    }, 1500)
-  }
-
+function PatternsPage() {
   return (
-    <div className="space-y-6">
-      <PageTitle title="AI Chat 演示" desc="Live chat demo. Components: Card, Avatar, Input, Button, ScrollArea, Tooltip." />
-      <HeroIllustration type="chat" className="mt-4" />
-      <Card className="overflow-hidden">
-        <div className="flex items-center gap-3 border-b bg-muted/20 px-4 py-2.5">
-          <Avatar size="sm"><AvatarFallback className="bg-primary text-primary-foreground"><Bot className="h-3.5 w-3.5" /></AvatarFallback></Avatar>
-          <div><p className="text-sm font-medium">AI Assistant</p><p className="text-xs text-muted-foreground">Online &middot; Claude</p></div>
+    <div className="space-y-0">
+      {/* ── Hero with gradient mesh ── */}
+      <section className="relative overflow-hidden border-b border-border">
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            background: "radial-gradient(at 0% 0%, #ccff00 0%, transparent 50%), radial-gradient(at 100% 100%, #00ccf9 0%, transparent 50%)",
+            opacity: 0.15,
+          }}
+        />
+        <div className="relative z-10 px-6 py-24 lg:px-16 lg:py-32 max-w-7xl">
+          <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-4 block">
+            Core Systems
+          </span>
+          <h1 className="text-[72px] sm:text-[96px] lg:text-[120px] font-extrabold leading-[0.95] tracking-[-0.05em] mb-8 max-w-4xl">
+            Interface{" "}
+            <span className="italic font-light tracking-tight text-primary-container">
+              Patterns
+            </span>{" "}
+            &amp; Behaviors.
+          </h1>
+          <p className="text-[18px] lg:text-[20px] text-muted-foreground max-w-2xl leading-[1.6]">
+            Standardized solutions for common user problems. From seamless authentication
+            to complex data visualization, explore how DesignCore handles the flow.
+          </p>
         </div>
-        <ScrollArea ref={listRef} className="h-72 px-4 py-4">
-          <div className="space-y-4">
-            {messages.map((m) => {
-              const isUser = m.role === "user"
-              return (
-                <div key={m.id} className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : ""}`}>
-                  <Avatar size="sm"><AvatarFallback className={isUser ? "bg-primary text-primary-foreground" : "bg-secondary"}>{isUser ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}</AvatarFallback></Avatar>
-                  <div className={`max-w-[80%] rounded-md px-3 py-2 text-sm leading-relaxed ${isUser ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</div>
-                </div>
-              )
-            })}
-            {typing && (
-              <div className="flex gap-2.5">
-                <Avatar size="sm"><AvatarFallback className="bg-secondary"><Bot className="h-3.5 w-3.5" /></AvatarFallback></Avatar>
-                <div className="flex items-center gap-1 rounded-md bg-muted px-3 py-2.5">
-                  {[0, 150, 300].map((ms) => (<span key={ms} className="h-1.5 w-1.5 animate-bounce rounded-full bg-foreground/30" style={{ animationDelay: `${ms}ms` }} />))}
-                </div>
-              </div>
-            )}
+      </section>
+
+      {/* ── Pattern 1 & 2 Row ── */}
+      <section className="grid grid-cols-1 md:grid-cols-12 border-b border-border">
+        {/* Pattern 1: Authentication Flows */}
+        <div className="md:col-span-8 p-8 lg:p-12 border-r border-border flex flex-col justify-between">
+          <div>
+            <span className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-6 block">
+              01 / SECURITY
+            </span>
+            <h2 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em] mb-6">
+              Authentication Flows
+            </h2>
+            <p className="text-[16px] text-muted-foreground max-w-xl mb-12 leading-[1.6]">
+              Designed for friction-less entry. Our patterns prioritize security without
+              compromising the human experience. Features adaptive multi-factor UI and
+              passwordless transitions.
+            </p>
           </div>
-        </ScrollArea>
-        <form onSubmit={send} className="flex gap-2 border-t px-4 py-3">
-          <Input placeholder="Type a message..." value={input} onChange={(e) => setInput(e.target.value)} disabled={typing} className="flex-1" />
-          <TooltipProvider><Tooltip><TooltipTrigger render={<Button type="submit" size="icon" disabled={!input.trim() || typing}><Send className="h-4 w-4" /></Button>} /><TooltipContent><p>Send</p></TooltipContent></Tooltip></TooltipProvider>
-        </form>
-      </Card>
+          <div className="border border-border p-8 bg-card">
+            <div className="max-w-sm mx-auto">
+              <div className="mb-8">
+                <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-2">
+                  Welcome back.
+                </h3>
+                <p className="text-muted-foreground text-[16px] leading-[1.6]">
+                  Sign in to your DesignCore account.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[12px] font-bold tracking-[0.15em] uppercase mb-2 block">
+                    Email Address
+                  </label>
+                  <input
+                    className="w-full border-b border-foreground bg-transparent py-2 focus:ring-0 focus:border-primary-container px-0 text-xl font-medium outline-none"
+                    placeholder="jane@studio.com"
+                    type="text"
+                  />
+                </div>
+                <button className="w-full bg-foreground text-background py-4 font-bold flex justify-between items-center px-6 hover:bg-primary-container hover:text-foreground transition-all">
+                  CONTINUE <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pattern 2: Data Dashboards */}
+        <div className="md:col-span-4 p-8 lg:p-12 flex flex-col justify-between bg-primary-container/5">
+          <div>
+            <span className="text-[14px] font-semibold tabular-nums text-muted-foreground mb-6 block">
+              02 / ANALYTICS
+            </span>
+            <h3 className="text-[32px] lg:text-[36px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">
+              Data Dashboards
+            </h3>
+            <p className="text-[16px] text-muted-foreground mb-8 leading-[1.6]">
+              Information density meets visual clarity. Minimalist charts and high-contrast
+              tables.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <div className="border border-border p-6 bg-card">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+                Real-Time Usage
+              </span>
+              <div className="flex items-end justify-between mt-4">
+                <span className="text-4xl font-bold">94.2%</span>
+                <span className="text-primary-container font-bold flex items-center gap-1">
+                  <TrendingUp className="h-4 w-4" /> +2.4%
+                </span>
+              </div>
+            </div>
+            <div className="border border-border p-6 bg-card">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground">
+                Active Nodes
+              </span>
+              <div className="flex items-end justify-between mt-4">
+                <span className="text-4xl font-bold">1,024</span>
+                <span className="text-foreground font-bold">STABLE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pattern 3: Dynamic Feed Systems ── */}
+      <section className="grid grid-cols-1 md:grid-cols-12 border-b border-border">
+        <div className="md:col-span-4 p-8 lg:p-12 border-r border-border bg-foreground text-background">
+          <span className="text-[14px] font-semibold tabular-nums text-primary-container mb-6 block">
+            03 / CONTENT
+          </span>
+          <h2 className="text-[48px] lg:text-[64px] font-extrabold leading-[1.05] tracking-[-0.04em] mb-6">
+            Dynamic Feed Systems
+          </h2>
+          <p className="text-[16px] text-white/70 mb-12 leading-[1.6]">
+            Infinite scalability for content-heavy applications. The feed pattern adapts to
+            media types from text snippets to high-resolution imagery.
+          </p>
+          <div className="flex flex-col gap-6">
+            <div className="flex gap-4 items-center">
+              <div className="w-12 h-12 rounded-full border border-primary-container flex items-center justify-center shrink-0">
+                <Rss className="h-5 w-5 text-primary-container" />
+              </div>
+              <div>
+                <p className="font-bold">Fluid Layouts</p>
+                <p className="text-sm text-white/60">Auto-adjusting grid units</p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-center">
+              <div className="w-12 h-12 rounded-full border border-primary-container flex items-center justify-center shrink-0">
+                <SlidersHorizontal className="h-5 w-5 text-primary-container" />
+              </div>
+              <div>
+                <p className="font-bold">Smart Filtering</p>
+                <p className="text-sm text-white/60">Context-aware navigation</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="md:col-span-8 relative">
+          <div className="absolute inset-0 bg-foreground/5 hairline-grid opacity-[0.04]" />
+          <div className="relative z-10 p-8 lg:p-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {/* Feed Card 1 */}
+            <div className="border border-border bg-card p-6">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary-container mb-4 block">
+                Latest Case Study
+              </span>
+              <h4 className="text-[24px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">
+                Scaling Global Systems
+              </h4>
+              <p className="text-[16px] text-muted-foreground mb-6 leading-[1.6]">
+                How we handled 100M+ requests per second with DesignCore architecture.
+              </p>
+              <a
+                href="#"
+                className="font-bold flex items-center gap-2 hover:translate-x-2 transition-transform"
+              >
+                READ MORE <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+            {/* Feed Card 2 */}
+            <div className="border border-border bg-card p-6">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-muted-foreground mb-4 block">
+                Resource Updated
+              </span>
+              <h4 className="text-[24px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">
+                Bento Grid Patterns
+              </h4>
+              <p className="text-[16px] text-muted-foreground mb-6 leading-[1.6]">
+                Explore the updated spacing logic for responsive bento-style layouts.
+              </p>
+              <a
+                href="#"
+                className="font-bold flex items-center gap-2 hover:translate-x-2 transition-transform"
+              >
+                EXPLORE <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+            {/* Feed Card 3 */}
+            <div className="border border-border bg-card p-6 sm:col-span-2">
+              <span className="text-[12px] font-bold tracking-[0.15em] uppercase text-primary-container mb-4 block">
+                Design Tip
+              </span>
+              <h4 className="text-[24px] font-bold leading-[1.1] tracking-[-0.02em] mb-4">
+                Micro-interactions
+              </h4>
+              <p className="text-[16px] text-muted-foreground mb-6 leading-[1.6]">
+                Subtle motion rules for button hover states and active indicators.
+              </p>
+              <a
+                href="#"
+                className="font-bold flex items-center gap-2 hover:translate-x-2 transition-transform"
+              >
+                VIEW RULES <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Newsletter / CTA ── */}
+      <section className="p-12 lg:p-24 flex flex-col items-center text-center">
+        <h2 className="text-[72px] sm:text-[96px] lg:text-[120px] font-extrabold leading-[0.95] tracking-[-0.05em] mb-8">
+          Ready to{" "}
+          <span className="italic font-light tracking-tight text-primary-container">
+            Build?
+          </span>
+        </h2>
+        <p className="text-[18px] lg:text-[20px] text-muted-foreground max-w-2xl mb-12 leading-[1.6]">
+          Download the complete pattern library for Figma and start building world-class
+          interfaces today.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+          <input
+            className="flex-1 bg-transparent border-b border-foreground focus:border-primary-container focus:ring-0 py-3 text-lg outline-none"
+            placeholder="email@example.com"
+            type="email"
+          />
+          <button className="bg-foreground text-background px-8 py-4 font-bold hover:bg-primary-container hover:text-foreground transition-all">
+            GET ACCESS
+          </button>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="w-full py-20 px-6 lg:px-16 mt-auto flex flex-col md:flex-row justify-between items-center gap-12 bg-foreground text-background border-t border-white/10">
+        <div className="flex flex-col items-center md:items-start gap-6">
+          <span className="text-[24px] font-black text-primary-container">DesignCore</span>
+          <p className="text-base text-white/40 text-center md:text-left">
+            © 2024 DesignCore Systems. All rights reserved. Built for the future of
+            editorial products.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-10">
+          {["Privacy Policy", "Terms of Service", "GitHub", "Support"].map((link) => (
+            <a
+              key={link}
+              href="#"
+              className="text-[12px] font-bold tracking-[0.15em] uppercase hover:text-primary-container transition-colors"
+            >
+              {link}
+            </a>
+          ))}
+        </div>
+      </footer>
     </div>
   )
 }
 
 /* ═══════════════════════════════════════
-   MOBILE HEADER
+   TOPBAR
    ═══════════════════════════════════════ */
 
-function MobileHeader() {
+function TopBar() {
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-background px-3 py-2.5 lg:hidden">
+    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-background/90 backdrop-blur-xl px-4 lg:px-8 h-20">
+      {/* Mobile menu */}
       <Sheet>
-        <SheetTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8"><Menu className="h-4 w-4" /></Button>} />
-        <SheetContent side="left" className="w-60 p-0">
-          <div className="flex items-center gap-2 border-b px-4 py-3 text-sm font-semibold"><Sparkles className="h-4 w-4" />Design System</div>
+        <SheetTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 lg:hidden"><Menu className="h-4 w-4" /></Button>} />
+        <SheetContent side="left" className="w-72 p-0">
+          <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+            <Sparkles className="h-4 w-4 text-primary/60" />
+            <span className="text-sm font-semibold tracking-tight">Vivid Editorial</span>
+          </div>
           <SidebarNav />
         </SheetContent>
       </Sheet>
-      <span className="text-sm font-semibold">DS</span>
-      <ThemeToggle />
+
+      {/* Brand */}
+      <div className="flex items-center gap-3">
+        <Sparkles className="hidden h-4 w-4 text-primary/60 lg:block" />
+        <span className="text-sm font-bold tracking-tight lg:text-base">Vivid Editorial</span>
+        <span className="hidden text-[10px] font-medium tracking-[0.05em] uppercase text-muted-foreground/60 lg:inline">Design System</span>
+      </div>
+
+      {/* Right side */}
+      <div className="flex items-center gap-4">
+        <div className="relative hidden lg:block">
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            className="w-56 border border-border bg-muted py-2 pl-9 pr-4 text-sm text-foreground outline-none transition-all focus:border-foreground focus:ring-1 focus:ring-foreground"
+            placeholder="Search the system..."
+          />
+        </div>
+        <Button size="sm" className="bg-primary-container text-foreground hover:brightness-90 h-9 rounded-none px-5 text-[11px] font-semibold tracking-[0.05em] uppercase">
+          Get Started
+        </Button>
+        <ThemeToggle />
+      </div>
     </header>
   )
 }
@@ -621,48 +1321,49 @@ function MobileHeader() {
 
 function AppLayout() {
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 border-r bg-card lg:flex lg:flex-col">
-        <div className="flex items-center gap-2 border-b px-4 py-3">
-          <Sparkles className="h-4 w-4" />
-          <span className="text-sm font-semibold tracking-tight">Design System</span>
-          <span className="ml-auto text-xs text-muted-foreground">v1.0</span>
-        </div>
-        <SidebarNav />
-        <div className="border-t px-3 py-2.5 flex items-center justify-between">
-          <ThemeToggle />
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground"><ExternalLink className="h-4 w-4" /></a>
-        </div>
-      </aside>
+    <div className="flex min-h-screen flex-col bg-background">
+      <TopBar />
 
-      {/* Mobile header */}
-      <MobileHeader />
+      <div className="flex flex-1">
+        {/* Desktop sidebar */}
+        <aside className="hidden w-72 shrink-0 border-r border-border bg-background lg:flex lg:flex-col">
+          <div className="px-5 pt-7 pb-5 space-y-1">
+            <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Documentation</p>
+            <p className="text-xs text-muted-foreground/50 font-medium tabular-nums">v1.0.0</p>
+          </div>
+          <SidebarNav />
+          <div className="mt-auto border-t border-border px-4 py-3 flex items-center justify-between">
+            <ThemeToggle />
+            <a href="https://github.com/jadewuu/ds-app" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors"><ExternalLink className="h-4 w-4" /></a>
+          </div>
+        </aside>
 
-      {/* Main content — routed pages */}
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-4xl px-5 py-8 lg:px-10 lg:py-10">
-          <Routes>
-            <Route path="/" element={<OverviewPage />} />
-            <Route path="/overview" element={<OverviewPage />} />
-            <Route path="/colors" element={<ColorsPage />} />
-            <Route path="/typography" element={<TypographyPage />} />
-            <Route path="/button" element={<ButtonPage />} />
-            <Route path="/avatar" element={<AvatarPage />} />
-            <Route path="/badge" element={<BadgePage />} />
-            <Route path="/card" element={<CardPage />} />
-            <Route path="/tabs" element={<TabsPage />} />
-            <Route path="/tooltip" element={<TooltipPage />} />
-            <Route path="/skeleton" element={<SkeletonPage />} />
-            <Route path="/input" element={<InputPage />} />
-            <Route path="/select" element={<SelectPage />} />
-            <Route path="/switch" element={<SwitchPage />} />
-            <Route path="/slider" element={<SliderPage />} />
-            <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-          </Routes>
-        </div>
-      </main>
+        {/* Main content — routed pages */}
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-6xl px-6 py-10 lg:px-12 lg:py-12">
+            <Routes>
+              <Route path="/" element={<OverviewPage />} />
+              <Route path="/overview" element={<OverviewPage />} />
+              <Route path="/colors" element={<FoundationsPage />} />
+              <Route path="/typography" element={<LayoutPage />} />
+              <Route path="/button" element={<ComponentsPage />} />
+              <Route path="/button-demo" element={<ButtonPage />} />
+              <Route path="/avatar" element={<AvatarPage />} />
+              <Route path="/badge" element={<BadgePage />} />
+              <Route path="/card" element={<CardPage />} />
+              <Route path="/tabs" element={<TabsPage />} />
+              <Route path="/tooltip" element={<TooltipPage />} />
+              <Route path="/skeleton" element={<SkeletonPage />} />
+              <Route path="/input" element={<InputPage />} />
+              <Route path="/select" element={<SelectPage />} />
+              <Route path="/switch" element={<SwitchPage />} />
+              <Route path="/slider" element={<SliderPage />} />
+              <Route path="/progress" element={<ProgressPage />} />
+              <Route path="/chat" element={<PatternsPage />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
