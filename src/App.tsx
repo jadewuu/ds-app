@@ -1284,7 +1284,8 @@ function TopBar() {
         <SheetContent side="left" className="w-72 p-0">
           <div className="flex items-center gap-2 border-b border-border px-5 py-4">
             <Sparkles className="h-4 w-4 text-primary/60" />
-            <span className="text-sm font-semibold tracking-tight">Vivid Editorial</span>
+            <span className="text-sm font-semibold tracking-tight">Proton design</span>
+            <span className="ml-auto text-[10px] font-bold tracking-[0.05em] uppercase bg-primary-container text-foreground px-2 py-0.5">V1.0</span>
           </div>
           <SidebarNav />
         </SheetContent>
@@ -1293,8 +1294,8 @@ function TopBar() {
       {/* Brand */}
       <div className="flex items-center gap-3">
         <Sparkles className="hidden h-4 w-4 text-primary/60 lg:block" />
-        <span className="text-sm font-bold tracking-tight lg:text-base">Vivid Editorial</span>
-        <span className="hidden text-[10px] font-medium tracking-[0.05em] uppercase text-muted-foreground/60 lg:inline">Design System</span>
+        <span className="text-sm font-bold tracking-tight lg:text-base">Proton design</span>
+        <span className="text-[10px] font-bold tracking-[0.05em] uppercase bg-primary-container text-foreground px-2 py-0.5">V1.0</span>
       </div>
 
       {/* Right side */}
@@ -1326,16 +1327,8 @@ function AppLayout() {
 
       <div className="flex flex-1">
         {/* Desktop sidebar */}
-        <aside className="hidden w-72 shrink-0 border-r border-border bg-background lg:flex lg:flex-col">
-          <div className="px-5 pt-7 pb-5 space-y-1">
-            <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground">Documentation</p>
-            <p className="text-xs text-muted-foreground/50 font-medium tabular-nums">v1.0.0</p>
-          </div>
+        <aside className="hidden w-72 shrink-0 border-r border-border bg-background lg:flex lg:flex-col sticky top-20 h-[calc(100vh-5rem)]">
           <SidebarNav />
-          <div className="mt-auto border-t border-border px-4 py-3 flex items-center justify-between">
-            <ThemeToggle />
-            <a href="https://github.com/jadewuu/ds-app" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors"><ExternalLink className="h-4 w-4" /></a>
-          </div>
         </aside>
 
         {/* Main content — routed pages */}
