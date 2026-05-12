@@ -2,11 +2,7 @@ import { DemoBox } from "@/components/layout/DemoBox"
 import { HeroIllustration } from "@/components/HeroIllustration"
 import { Label } from "@/components/ui/label"
 import { PageTitle } from "@/components/layout/PageTitle"
-import { Select } from "@/components/ui/select"
-import { SelectContent } from "@/components/ui/selectcontent"
-import { SelectItem } from "@/components/ui/selectitem"
-import { SelectTrigger } from "@/components/ui/selecttrigger"
-import { SelectValue } from "@/components/ui/selectvalue"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export function SelectPage() {
   return (

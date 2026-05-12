@@ -3,10 +3,7 @@ import { HeroIllustration } from "@/components/HeroIllustration"
 import { Info } from "lucide-react"
 import { PageTitle } from "@/components/layout/PageTitle"
 import { Switch } from "@/components/ui/switch"
-import { Tabs } from "@/components/ui/tabs"
-import { TabsContent } from "@/components/ui/tabscontent"
-import { TabsList } from "@/components/ui/tabslist"
-import { TabsTrigger } from "@/components/ui/tabstrigger"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function TabsPage() {
   return (

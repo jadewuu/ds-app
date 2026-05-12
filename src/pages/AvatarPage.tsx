@@ -1,5 +1,4 @@
-import { Avatar } from "@/components/ui/avatar"
-import { AvatarFallback } from "@/components/ui/avatarfallback"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DemoBox } from "@/components/layout/DemoBox"
 import { HeroIllustration } from "@/components/HeroIllustration"
 import { PageTitle } from "@/components/layout/PageTitle"

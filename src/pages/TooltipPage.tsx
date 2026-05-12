@@ -3,10 +3,7 @@ import { Copy, Heart, Info } from "lucide-react"
 import { DemoBox } from "@/components/layout/DemoBox"
 import { HeroIllustration } from "@/components/HeroIllustration"
 import { PageTitle } from "@/components/layout/PageTitle"
-import { Tooltip } from "@/components/ui/tooltip"
-import { TooltipContent } from "@/components/ui/tooltipcontent"
-import { TooltipProvider } from "@/components/ui/tooltipprovider"
-import { TooltipTrigger } from "@/components/ui/tooltiptrigger"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 export function TooltipPage() {
   return (
